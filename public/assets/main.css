@@ -1,0 +1,143 @@
+@import url("https://fonts.googleapis.com/css?family=Questrial&display=swap");
+
+html {
+  height: 100%;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-color: #363636;
+  color: #fff;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+nav {
+  background-color: #735cdd;
+  display: inline-flex;
+  width: 100%;
+  height: 100px;
+}
+
+nav h1 {
+  padding-left: 40px;
+  font-size: 28px;
+  margin: auto;
+  width: auto;
+  height: auto;
+  font-family: "Questrial", sans-serif;
+}
+
+h3 {
+  font-family: "Questrial", sans-serif;
+}
+
+nav ul {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  list-style-type: none;
+  list-style: none;
+  justify-content: flex-end;
+  margin: auto;
+  font-family: "Questrial", sans-serif;
+}
+
+nav > ul > li {
+  padding: 0 20px;
+  opacity: 0.8;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+nav > ul > li:hover {
+  opacity: 1;
+}
+
+nav > ul > li:last-child {
+  left: 0px;
+  margin-left: 5rem;
+  margin-right: 2rem;
+}
+
+nav > ul > .active {
+  opacity: 1;
+}
+
+#notification {
+  text-align: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+.wrapper {
+  background-color: #494949;
+  margin-top: 5%;
+  margin-right: 3%;
+  margin-left: 3%;
+}
+
+.container {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.container > header {
+  padding: 20px 10px;
+}
+
+.container > footer {
+  padding: 20px 10px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: auto;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 25px;
+}
+
+thead {
+  background-color: #735cdd;
+}
+
+td {
+  background-color: #fff;
+  color: #363636;
+}
+
+table tr td:last-child{
+  text-align: center;
+}
+table tr th:last-child{
+  text-align: center;
+}
+
+table tr:first-child th:first-child {
+  border-top-left-radius: 5px;
+}
+
+table tr:last-child th:last-child {
+  border-top-right-radius: 5px;
+}
+
+table tr:last-child td:first-child {
+  border-bottom-left-radius: 5px;
+}
+
+table tr:last-child td:last-child {
+  border-bottom-right-radius: 5px;
+}

@@ -1,0 +1,56 @@
+{
+  "name": "web-processes-automatization",
+  "version": "0.0.1",
+  "description": "Software for writing and executing scripts that automate web processes.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder build --win --publish never",
+    "deploy": "electron-builder build --win --publish always"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FifthWye/web-processes-automatization.git"
+  },
+  "keywords": [
+    "web",
+    "scraping",
+    "web",
+    "actions",
+    "automatization"
+  ],
+  "author": "FifthWye",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FifthWye/web-processes-automatization/issues"
+  },
+  "homepage": "https://github.com/FifthWye/web-processes-automatization#readme",
+  "devDependencies": {
+    "electron": "^5.0.4",
+    "electron-builder": "^20.44.4",
+    "electron-packager": "^14.1.0"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "electron-store": "^4.0.0",
+    "electron-updater": "^4.2.0",
+    "puppeteer": "^1.18.0"
+  },
+  "build": {
+    "appId": "com.lacp.app",
+    "asar": true,
+    "asarUnpack": "node_modules/puppeteer/.local-chromium/**/*",
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icons/icon.ico",
+      "publisherName": "FifthWye"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "FifthWye",
+        "repo": "web-processes-automatization"
+      }
+    ]
+  }
+}
