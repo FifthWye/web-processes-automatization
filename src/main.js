@@ -83,11 +83,12 @@ ipcMain.on("test-script", async (event, arg) => {
 
   await page.goto("https://google.com");
 
-  let data;
+  let data = [];
 
   for (let i = 0; i < script.length; i++) {
     data = await execStep(script[i], page);
     if (data) {
+      console.log(data);
       event.sender.send("data", data);
     }
   }
@@ -99,7 +100,6 @@ async function execStep(step, page) {
   // I know that big switch is a bad solution just made it so because of time lack
   const func = step.func;
   const selector = step.selector;
-  let data = [];
   switch (func) {
     case "goTo":
       const url = step.url;
@@ -125,45 +125,51 @@ async function execStep(step, page) {
       break;
     case "getAttribute":
       const attribute = step.attribute;
-      data = await page.evaluate(async () => {
-        const elArr = document.querySelectorAll(selector);
-        let data = [];
-        for (let i = 0; i < arr.length; i++) {
-          data.push(elArr[i].getAttribute(attribute));
-        }
-        return data;
-      });
+      const attributes = await getAttributes(attribute, selector, page);
+      if (attribute.length) {
+        return attributes;
+      }
       break;
     case "getInnerText":
-      data = await page.evaluate(async () => {
-        const elArr = document.querySelectorAll(selector);
-        let data = [];
-        for (let i = 0; i < arr.length; i++) {
-          data.push(elArr[i].textContent);
-        }
-        return data;
-      });
+      const innerText = await getInnerText(selector, page);
+      if (innerText.length) {
+        return innerText;
+      }
       break;
-    case "getInnerText":
-      data = await page.evaluate(async () => {
-        const elArr = document.querySelectorAll(selector);
-        let data = [];
-        for (let i = 0; i < arr.length; i++) {
-          data.push(elArr[i].textContent);
-        }
-        return data;
-      });
-      break;
-
     default:
-      data.push("wrong step action");
+      console.log("wrong func");
       break;
   }
-  return data;
 }
 
 function delay(time) {
   return new Promise(function(resolve) {
     setTimeout(resolve, time);
   });
+}
+
+async function getAttributes(attribute, selector, page) {
+  return await page.evaluate(
+    async (attribute, selector) => {
+      const elArr = document.querySelectorAll(selector);
+      let attributesVal = [];
+      for (let i = 0; i < elArr.length; i++) {
+        attributesVal.push(elArr[i].getAttribute(attribute));
+      }
+      return attributesVal;
+    },
+    attribute,
+    selector
+  );
+}
+
+async function getInnerText(selector, page) {
+  return await page.evaluate(async selector => {
+    const elArr = document.querySelectorAll(selector);
+    let textArr = [];
+    for (let i = 0; i < elArr.length; i++) {
+      textArr.push(elArr[i].textContent);
+    }
+    return textArr;
+  }, selector);
 }

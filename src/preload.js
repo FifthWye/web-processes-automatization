@@ -8,12 +8,7 @@ window.addEventListener("DOMContentLoaded", () => {
   changeView();
   setUpNavbar();
 
-  ipcRenderer.on("data", (event, arg) => {
-    const dataArr = arg;
-    for (let i = 0; i < dataArr.length; i++) {
-      console.log(dataArr[i]);
-    }
-  });
+  
 });
 
 async function changeView(el) {
@@ -42,6 +37,16 @@ async function changeView(el) {
       document.querySelector("#test").addEventListener("click", function() {
         let script = document.querySelector("#script").value;
         ipcRenderer.send("test-script", script);
+        ipcRenderer.on("data", (event, arg) => {
+          const dataArr = arg;
+          const dataTable = document.querySelector("script-output > table");
+          const theadEl = document.createElement("thead");
+          const theadEl = document.createElement("tr");
+          const theadEl = document.createElement("th");
+          for (let i = 0; i < dataArr.length; i++) {
+            console.log(dataArr[i]);
+          }
+        });
       });
       break;
     case "run":
