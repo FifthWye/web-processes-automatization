@@ -7,6 +7,13 @@ const cheerio = require("cheerio");
 window.addEventListener("DOMContentLoaded", () => {
   changeView();
   setUpNavbar();
+
+  ipcRenderer.on("data", (event, arg) => {
+    const dataArr = arg;
+    for (let i = 0; i < dataArr.length; i++) {
+      console.log(dataArr[i]);
+    }
+  });
 });
 
 async function changeView(el) {
@@ -18,10 +25,11 @@ async function changeView(el) {
       navLinks[i].classList.remove("active");
     }
     el.classList.add("active");
+  } else {
+    document.querySelector("li[data-route='home']").classList.add("active");
   }
 
   const routerView = document.getElementById("router-view");
-  console.log(route)
   switch (route) {
     case "home":
       routerView.innerHTML = await fetchHtmlAsText("routes/home.html");
@@ -31,12 +39,16 @@ async function changeView(el) {
       break;
     case "create":
       routerView.innerHTML = await fetchHtmlAsText("routes/create.html");
+      document.querySelector("#test").addEventListener("click", function() {
+        let script = document.querySelector("#script").value;
+        ipcRenderer.send("test-script", script);
+      });
       break;
     case "run":
       routerView.innerHTML = await fetchHtmlAsText("routes/run.html");
       break;
     default:
-      routerView.innerHTML = await fetchHtmlAsText("routes/home.html");
+      routerView.innerHTML = await fetchHtmlAsText("routes/create.html");
       break;
   }
 }

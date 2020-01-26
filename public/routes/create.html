@@ -1,12 +1,41 @@
 <section id="home">
-    <div class="wrapper">
-      <div class="container">
-        <header>
-          <h3>Create your script</h3>
-        </header>
-        <form action=""></form>
-        <footer></footer>
+  <div class="wrapper">
+    <div class="container">
+      <header>
+        <h3>Create your script</h3>
+      </header>
+      <div class="script-editor">
+        <div class="script-info">
+          <label>Title</label>
+          <input id="title" maxlength="30" type="text" />
+          <label>Description</label>
+          <textarea id="desc" maxlength="350"></textarea>
+          <button id="test">Test</button>
+          <button id="publish">Publish</button>
+        </div>
+        <div class="script-content">
+          <textarea id="script"></textarea>
+        </div>
       </div>
+      <div class="script-output">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Text</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Google scraping</td>
+              <td>Wtf</td>
+              <td>&#10006;</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <footer></footer>
     </div>
-  </section>
-  
+  </div>
+</section>

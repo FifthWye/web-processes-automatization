@@ -17,8 +17,8 @@ function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 800,
-    height: 500,
-    minHeight: 500,
+    height: 600,
+    minHeight: 600,
     minWidth: 800,
     icon: path.join(__dirname, "public/assets/icon.ico"),
     webPreferences: {
@@ -47,7 +47,7 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
-  autoUpdater.checkForUpdatesAndNotify();
+  //autoUpdater.checkForUpdatesAndNotify();
   createWindow();
 });
 
@@ -64,20 +64,106 @@ app.on("activate", function() {
   if (mainWindow === null) createWindow();
 });
 
-ipcMain.on("app_version", event => {
-  event.sender.send("app_version", { version: app.getVersion() });
-});
-
-autoUpdater.on("update-available", () => {
-  mainWindow.webContents.send("update_available");
-});
-
-autoUpdater.on("update-downloaded", () => {
-  mainWindow.webContents.send("update_downloaded");
-});
-
-ipcMain.on("restart_app", () => {
-  autoUpdater.quitAndInstall();
-});
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+ipcMain.on("test-script", async (event, arg) => {
+  const script = JSON.parse(arg); //[{"func":"goTo","url":"http://google.com"},{"func":"type","selector":"input[name='q']", "text":"gandalf sax video"},{"func":"click"}]
+
+  console.log(script, script.length);
+
+  const browser = await puppeteer.launch({
+    //executablePath: chromium_path,
+    headless: false,
+    defaultViewport: null,
+    args: ["--start-maximized"]
+  });
+
+  const page = (await browser.pages())[0];
+
+  await page.goto("https://google.com");
+
+  let data;
+
+  for (let i = 0; i < script.length; i++) {
+    data = await execStep(script[i], page);
+    if (data) {
+      event.sender.send("data", data);
+    }
+  }
+
+  browser.close();
+});
+
+async function execStep(step, page) {
+  // I know that big switch is a bad solution just made it so because of time lack
+  const func = step.func;
+  const selector = step.selector;
+  let data = [];
+  switch (func) {
+    case "goTo":
+      const url = step.url;
+      await page.goto(url, { waitUntil: "networkidle2" });
+      break;
+    case "click":
+      await page.click(selector);
+      break;
+    case "waitFor":
+      await page.waitForSelector(selector);
+      break;
+    case "waitTime":
+      const time = step.time;
+      await delay(time);
+      break;
+    case "type":
+      const text = step.text;
+      await page.type(selector, text);
+      break;
+    case "press":
+      const key = step.key;
+      await page.keyboard.press(key);
+      break;
+    case "getAttribute":
+      const attribute = step.attribute;
+      data = await page.evaluate(async () => {
+        const elArr = document.querySelectorAll(selector);
+        let data = [];
+        for (let i = 0; i < arr.length; i++) {
+          data.push(elArr[i].getAttribute(attribute));
+        }
+        return data;
+      });
+      break;
+    case "getInnerText":
+      data = await page.evaluate(async () => {
+        const elArr = document.querySelectorAll(selector);
+        let data = [];
+        for (let i = 0; i < arr.length; i++) {
+          data.push(elArr[i].textContent);
+        }
+        return data;
+      });
+      break;
+    case "getInnerText":
+      data = await page.evaluate(async () => {
+        const elArr = document.querySelectorAll(selector);
+        let data = [];
+        for (let i = 0; i < arr.length; i++) {
+          data.push(elArr[i].textContent);
+        }
+        return data;
+      });
+      break;
+
+    default:
+      data.push("wrong step action");
+      break;
+  }
+  return data;
+}
+
+function delay(time) {
+  return new Promise(function(resolve) {
+    setTimeout(resolve, time);
+  });
+}

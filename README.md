@@ -1,13 +1,43 @@
-# Auto-contests-participate
-Deploy settings 
-
-On macOS/linux:
+Script to test programm
 
 ```
- export GH_TOKEN="<YOUR_TOKEN_HERE>"
-```
-On Windows, run in powershell:
-
-```
- [Environment]::SetEnvironmentVariable("GH_TOKEN","<YOUR_TOKEN_HERE>","User")
+[
+  {
+    "func": "goTo",
+    "url": "http://google.com"
+  },
+  {
+    "func": "waitTime",
+    "time": "1000"
+  },
+  {
+    "func": "type",
+    "selector": "input[name='q']",
+    "text": "gandalf sax video"
+  },
+  {
+    "func": "press",
+    "key": "Enter"
+  },
+  {
+    "func": "waitTime",
+    "time": "1000"
+  },
+  {
+    "func": "click",
+    "selector": "div.r > a"
+  },
+  {
+    "func": "waitTime",
+    "time": "3000"
+  },
+  {
+    "func": "press",
+    "key": "Space"
+  },
+  {
+    "func": "waitTime",
+    "time": "50000"
+  }
+]
 ```
