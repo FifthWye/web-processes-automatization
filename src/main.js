@@ -2,11 +2,8 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 const $ = require("cheerio");
-const Store = require("electron-store");
-const store = new Store();
 const puppeteer = require("puppeteer");
 const { ipcMain } = require("electron");
-const { autoUpdater } = require("electron-updater");
 const url = require("url");
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -20,7 +17,7 @@ function createWindow() {
     height: 600,
     minHeight: 600,
     minWidth: 800,
-    icon: path.join(__dirname, "public/assets/icon.ico"),
+    icon: path.join(__dirname, "public/assets/icons/wpa.ico"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js")
     }
@@ -83,26 +80,42 @@ ipcMain.on("test-script", async (event, arg) => {
 
   await page.goto("https://google.com");
 
-  let data = [];
+  let dataArrays = [];
 
   for (let i = 0; i < script.length; i++) {
-    data = await execStep(script[i], page);
-    if (data) {
-      console.log(data);
-      event.sender.send("data", data);
+    const actionData = await execAction(script[i], page);
+    if (actionData) {
+      //console.log(actionData);
+      dataArrays.push(actionData);
+    }
+  }
+
+  let jsonData = [];
+
+  if (dataArrays) {
+    if (checkArraysLength(dataArrays)) {
+      for (let i0 = 0; i0 < dataArrays[0].length; i0++) {
+        let obj = {};
+        for (let i1 = 0; i1 < dataArrays.length; i1++) {
+          obj = { ...obj, ...dataArrays[i1][i0] };
+        }
+        jsonData.push(obj);
+      }
+      console.log(jsonData)
+      event.sender.send("data", jsonData);
     }
   }
 
   browser.close();
 });
 
-async function execStep(step, page) {
+async function execAction(action, page) {
   // I know that big switch is a bad solution just made it so because of time lack
-  const func = step.func;
-  const selector = step.selector;
+  const func = action.func;
+  const selector = action.selector;
   switch (func) {
     case "goTo":
-      const url = step.url;
+      const url = action.url;
       await page.goto(url, { waitUntil: "networkidle2" });
       break;
     case "click":
@@ -112,19 +125,19 @@ async function execStep(step, page) {
       await page.waitForSelector(selector);
       break;
     case "waitTime":
-      const time = step.time;
+      const time = action.time;
       await delay(time);
       break;
     case "type":
-      const text = step.text;
+      const text = action.text;
       await page.type(selector, text);
       break;
     case "press":
-      const key = step.key;
+      const key = action.key;
       await page.keyboard.press(key);
       break;
     case "getAttribute":
-      const attribute = step.attribute;
+      const attribute = action.attribute;
       const attributes = await getAttributes(attribute, selector, page);
       if (attribute.length) {
         return attributes;
@@ -154,7 +167,7 @@ async function getAttributes(attribute, selector, page) {
       const elArr = document.querySelectorAll(selector);
       let attributesVal = [];
       for (let i = 0; i < elArr.length; i++) {
-        attributesVal.push(elArr[i].getAttribute(attribute));
+        attributesVal.push({ [attribute]: elArr[i].getAttribute(attribute) });
       }
       return attributesVal;
     },
@@ -168,8 +181,18 @@ async function getInnerText(selector, page) {
     const elArr = document.querySelectorAll(selector);
     let textArr = [];
     for (let i = 0; i < elArr.length; i++) {
-      textArr.push(elArr[i].textContent);
+      textArr.push({ text: elArr[i].textContent });
     }
     return textArr;
   }, selector);
+}
+
+function checkArraysLength(arr) {
+  const firstArrLength = arr[0].length;
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i].length != firstArrLength) {
+      return false;
+    }
+  }
+  return true;
 }

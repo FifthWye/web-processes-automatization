@@ -82,6 +82,7 @@ nav > ul > .active {
   margin-top: 5%;
   margin-right: 3%;
   margin-left: 3%;
+  margin-bottom: 5%;
 }
 
 .container {
@@ -147,7 +148,7 @@ table tr:last-child td:last-child {
   display: flex;
   justify-content: space-between;
   height: 20rem;
-  margin-bottom:20px;
+  margin-bottom:40px;
 }
 
 .script-info {
@@ -187,6 +188,10 @@ table tr:last-child td:last-child {
 
 .script-content {
   width: 56%;
+}
+
+textarea{
+  font-family: Arial;
 }
 
 .script-content > textarea {
