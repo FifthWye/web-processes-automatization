@@ -67,10 +67,7 @@ function routeHome() {
 }
 
 function routeCatalog() {
-  Script.find(function(err, scripts) {
-    if (err) return console.error(err);
-    console.log(scripts);
-  });
+  loadCatalog();
 }
 
 function routeCreate() {
@@ -140,7 +137,7 @@ function routeCreate() {
           console.log(actions);
           const script = {
             title: scriptTitleEl.value,
-            desc: scriptDescEl.value,
+            description: scriptDescEl.value,
             users: [mongoose.Types.ObjectId(ownerId)],
             actions: actionsIdArr
           };
@@ -167,6 +164,8 @@ function routeCreate() {
           });
         }
       });
+    }else{
+      console.log("Validation error")
     }
   });
 }
@@ -309,5 +308,39 @@ function deleteScript(scriptId) {
       const actions = script.actions;
       Action.collection.deleteMany(actions);
     });
+  });
+}
+
+function loadCatalog() {
+  Script.find(function(err, scripts) {
+    if (err) return console.error(err);
+    let dataTable = document.querySelector("#scripts-catalog");
+    dataTable.innerHTML = "";
+    if (scripts.length) {
+      for (let i = 0; i < scripts.length; i++) {
+        let card = document.createElement("div");
+        card.classList.add("card");
+        let cardHeader = document.createElement("header");
+        let headerH4 = document.createElement("h4");
+        headerH4.innerHTML = scripts[i].title;
+        cardHeader.appendChild(headerH4);
+        card.appendChild(cardHeader);
+        let cardBody = document.createElement("div");
+        cardBody.classList.add("card-body");
+        let bodyP = document.createElement("p");
+        bodyP.innerHTML = scripts[i].description;
+        cardBody.appendChild(bodyP);
+        card.appendChild(cardBody);
+        let cardFooter = document.createElement("footer");
+        let footerSteps = document.createElement("span");
+        let footerUsers = document.createElement("span");
+        footerSteps.innerHTML = "Steps: " + scripts[i].actions.length;
+        footerUsers.innerHTML = "Users: " + scripts[i].users.length;
+        cardFooter.appendChild(footerSteps);
+        cardFooter.appendChild(footerUsers);
+        card.appendChild(cardFooter);
+        dataTable.appendChild(card);
+      }
+    }
   });
 }
