@@ -34,6 +34,13 @@ h3 {
   font-weight: normal;
 }
 
+h4 {
+  font-family: "Questrial", sans-serif;
+  font-weight: normal;
+  padding: 0;
+  margin: 0;
+}
+
 nav ul {
   display: inline-flex;
   flex-direction: row;
@@ -152,60 +159,121 @@ table tr button {
   margin-right: 5px;
 }
 
-.script-editor {
+textarea {
+  font-family: Arial;
+}
+
+#create > .wrapper > .container > .script-editor {
   display: flex;
   justify-content: space-between;
   height: 20rem;
-  margin-bottom:40px;
+  margin-bottom: 40px;
 }
 
-.script-info {
+#create > .wrapper > .container > .script-editor > .script-info {
   width: 40%;
 }
 
-.script-info > input[type="text"] {
+#create
+  > .wrapper
+  > .container
+  > .script-editor
+  .script-info
+  > input[type="text"] {
   width: 100%;
   height: 30px;
   margin-bottom: 10px;
   outline: none;
   border: none;
+  border-radius: 0.25rem;
+  margin-top: 5px;
 }
 
-.script-info > textarea {
+#create > .wrapper > .container > .script-editor > .script-info > textarea {
   width: 100%;
   height: 130px;
   resize: none;
   margin-bottom: 10px;
   outline: none;
   border: none;
+  border-radius: 0.25rem;
+  margin-top: 5px;
 }
 
+#create > .wrapper > .container > .script-editor > .script-info > button {
+  padding: 20px 30px;
+  outline: none;
+  border: none;
+  background-color: #735cdd;
+  cursor: pointer;
+  color: white;
+  margin-right: 10px;
+}
 
-.script-info > button {
+#create > .wrapper > .container > .script-editor > .script-info > button:hover {
+  opacity: 0.9;
+}
+
+#create > .wrapper > .container > .script-editor > .script-content {
+  width: 56%;
+}
+
+#create > .wrapper > .container > .script-editor > .script-content > textarea {
+  width: 100%;
+  height: 100%;
+  resize: none;
+  outline: none;
+  border: none;
+}
+
+#catalog > .wrapper > .container > #scripts-catalog {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  flex-wrap: warp;
+  height: auto;
+  width: 100%;
+}
+
+#catalog > .wrapper > .container > #scripts-catalog > .card {
+  background-color: #fff;
+  color: #363636;
+  height: auto;
+  width: auto;
+  margin-right: 20px;
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+#catalog > .wrapper > .container > #scripts-catalog > .card > header {
+  width: auto;
+  height: auto;
+  background-color: #735cdd;
+  color: #fff;
+}
+
+#catalog > .wrapper > .container > #scripts-catalog > .card > header > h4 {
+  padding: 20px 30px;
+  width: auto;
+  height: auto;
+  background-color: #735cdd;
+  color: #fff;
+}
+
+#catalog > .wrapper > .container > #scripts-catalog > .card > .card-body {
+  padding: 20px 30px;
+}
+
+#catalog > .wrapper > .container > #scripts-catalog > .card > .card-body > p {
+  padding:0;
+}
+
+#catalog > .wrapper > .container > #scripts-catalog > .card > .card-body > button {
   padding: 10px 20px;
   outline: none;
   border: none;
   background-color: #735cdd;
   cursor: pointer;
   color: white;
-}
-
-.script-info > button:hover {
-  opacity: 0.9;
-}
-
-.script-content {
-  width: 56%;
-}
-
-textarea{
-  font-family: Arial;
-}
-
-.script-content > textarea {
-  width: 100%;
-  height: 100%;
-  resize: none;
-  outline: none;
-  border: none;
+  margin-right: 10px;
 }
