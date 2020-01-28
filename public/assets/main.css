@@ -144,6 +144,14 @@ table tr:last-child td:last-child {
   border-bottom-right-radius: 5px;
 }
 
+table tr button {
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
 .script-editor {
   display: flex;
   justify-content: space-between;

@@ -66,8 +66,7 @@ Script with data scrapping
   },
   {
     "func": "getInnerText",
-    "selector": "div.r > a > h3",
-    "attribute": "href"
+    "selector": "div.r > a > h3"
   },
   {
     "func": "getAttribute",

@@ -27,12 +27,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
 async function changeView(el) {
   let route = "";
+  const navLinks = document.querySelectorAll("nav > ul > li");
+  for (let i = 0; i < navLinks.length; i++) {
+    navLinks[i].classList.remove("active");
+  }
   if (el) {
     route = el.dataset.route;
-    const navLinks = document.querySelectorAll("nav > ul > li");
-    for (let i = 0; i < navLinks.length; i++) {
-      navLinks[i].classList.remove("active");
-    }
     el.classList.add("active");
   } else {
     document.querySelector("li[data-route='home']").classList.add("active");
@@ -63,17 +63,7 @@ async function changeView(el) {
 }
 
 function routeHome() {
-  const query = { _id: mongoose.Types.ObjectId(ownerId) };
-  User.collection.findOne(query, function(err, user) {
-    if (err) return console.error(err);
-    console.log(user);
-    const userScripts = user.scripts;
-    const query = { _id: userScripts };
-    Script.find(query, function(err, scripts) {
-      if (err) return console.error(err);
-      console.log(scripts);
-    });
-  });
+  loadHomePageTable();
 }
 
 function routeCatalog() {
@@ -169,6 +159,7 @@ function routeCreate() {
                     return console.error(err);
                   } else {
                     console.log(user);
+                    changeView();
                   }
                 }
               );
@@ -227,4 +218,96 @@ function setUpNavbar() {
 
 async function fetchHtmlAsText(url) {
   return await (await fetch(url)).text();
+}
+
+function loadHomePageTable() {
+  const query = { _id: mongoose.Types.ObjectId(ownerId) };
+  User.collection.findOne(query, function(err, user) {
+    if (err) return console.error(err);
+    if (user) {
+      const userScripts = user.scripts;
+      const query = { _id: { $in: userScripts } };
+      Script.collection.find(query, function(err, cursor) {
+        if (err) return console.error(err);
+        cursor.toArray().then(scripts => {
+          console.log(scripts);
+          let dataTable = document.querySelector("table");
+          dataTable.innerHTML = "";
+          if (scripts.length) {
+            let theadEl = document.createElement("thead");
+            let theadTr = document.createElement("tr");
+            let numTh = document.createElement("th");
+            numTh.innerHTML = "#";
+            theadTr.appendChild(numTh);
+            let titleTh = document.createElement("th");
+            titleTh.innerHTML = "Title";
+            theadTr.appendChild(titleTh);
+            let descTh = document.createElement("th");
+            descTh.innerHTML = "Description";
+            theadTr.appendChild(descTh);
+            let actionsTh = document.createElement("th");
+            actionsTh.innerHTML = "Actions";
+            theadTr.appendChild(actionsTh);
+            theadEl.appendChild(theadTr);
+
+            let tbodyEl = document.createElement("tbody");
+            for (let i = 0; i < scripts.length; i++) {
+              let trEl = document.createElement("tr");
+              let numTd = document.createElement("td");
+              numTd.innerHTML = i + 1;
+              trEl.appendChild(numTd);
+              for (var attr in scripts[i]) {
+                if (attr != "_id" && attr != "users" && attr != "actions") {
+                  let tdEl = document.createElement("td");
+                  tdEl.innerHTML = scripts[i][attr];
+                  trEl.appendChild(tdEl);
+                }
+              }
+
+              let actionsTd = document.createElement("td");
+              let removeButton = document.createElement("button");
+              let editButton = document.createElement("button");
+              removeButton.innerHTML = "&#10006;";
+              editButton.innerHTML = "<i class='fas fa-pencil-alt'></i>";
+              removeButton.addEventListener("click", () => {
+                deleteScript(scripts[i]._id);
+              });
+
+              actionsTd.appendChild(editButton);
+              actionsTd.appendChild(removeButton);
+              trEl.appendChild(actionsTd);
+
+              tbodyEl.appendChild(trEl);
+            }
+            dataTable.appendChild(theadEl);
+            dataTable.appendChild(tbodyEl);
+          } else {
+            console.log("there is no scripts yet");
+            //TODO: show user that there is no scripts he\she owns yet
+          }
+        });
+      });
+    } else {
+      //TODO: here it shoud clean app storage and send user to log in page
+    }
+  });
+}
+
+function deleteScript(scriptId) {
+  console.log(scriptId);
+  const query = { scripts: scriptId };
+  User.collection.updateMany(query, { $pull: { scripts: scriptId } }, function(
+    err
+  ) {
+    if (err) return console.error(err);
+    loadHomePageTable();
+    Script.collection.findOneAndDelete({ _id: scriptId }, function(
+      err,
+      script
+    ) {
+      if (err) return console.log(err);
+      const actions = script.actions;
+      Action.collection.deleteMany(actions);
+    });
+  });
 }
