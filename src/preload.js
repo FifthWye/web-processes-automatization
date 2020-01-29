@@ -164,8 +164,8 @@ function routeCreate() {
           });
         }
       });
-    }else{
-      console.log("Validation error")
+    } else {
+      console.log("Validation error");
     }
   });
 }
@@ -230,9 +230,11 @@ function loadHomePageTable() {
         if (err) return console.error(err);
         cursor.toArray().then(scripts => {
           console.log(scripts);
-          let dataTable = document.querySelector("table");
-          dataTable.innerHTML = "";
+          let myScripts = document.querySelector("#my-scripts");
+          myScripts.innerHTML = "";
+
           if (scripts.length) {
+            let dataTable = document.createElement("table");
             let theadEl = document.createElement("thead");
             let theadTr = document.createElement("tr");
             let numTh = document.createElement("th");
@@ -268,6 +270,9 @@ function loadHomePageTable() {
               let editButton = document.createElement("button");
               removeButton.innerHTML = "&#10006;";
               editButton.innerHTML = "<i class='fas fa-pencil-alt'></i>";
+              editButton.addEventListener("click", () => {
+                loadEditScriptForm();
+              });
               removeButton.addEventListener("click", () => {
                 deleteScript(scripts[i]._id);
               });
@@ -278,8 +283,10 @@ function loadHomePageTable() {
 
               tbodyEl.appendChild(trEl);
             }
+
             dataTable.appendChild(theadEl);
             dataTable.appendChild(tbodyEl);
+            myScripts.appendChild(dataTable);
           } else {
             console.log("there is no scripts yet");
             //TODO: show user that there is no scripts he\she owns yet
@@ -290,6 +297,22 @@ function loadHomePageTable() {
       //TODO: here it shoud clean app storage and send user to log in page
     }
   });
+}
+
+async function loadEditScriptForm() {
+  let myScripts = document.querySelector("#my-scripts");
+  myScripts.innerHTML = "";
+  myScripts.innerHTML = await fetchHtmlAsText("routes/edit.html");
+  let giveAccessDiv = document.createElement("div");
+  let divLabel = document.createElement("label");
+  let divInput = document.createElement("input");
+  let divButton = document.createElement("button");
+  divLabel.innerHTML = "Email:";
+  divButton.innerHTML = "Give access";
+  giveAccessDiv.appendChild(divLabel);
+  giveAccessDiv.appendChild(divInput);
+  giveAccessDiv.appendChild(divButton);
+  myScripts.appendChild(giveAccessDiv);
 }
 
 function deleteScript(scriptId) {
@@ -311,6 +334,10 @@ function deleteScript(scriptId) {
   });
 }
 
+function editScript(scriptId, email) {
+  console.log(scriptId, email);
+}
+
 function loadCatalog() {
   Script.find(function(err, scripts) {
     if (err) return console.error(err);
@@ -329,7 +356,10 @@ function loadCatalog() {
         cardBody.classList.add("card-body");
         let bodyP = document.createElement("p");
         bodyP.innerHTML = scripts[i].description;
+        let runButton = document.createElement("button");
+        runButton.innerHTML = "Run";
         cardBody.appendChild(bodyP);
+        cardBody.appendChild(runButton);
         card.appendChild(cardBody);
         let cardFooter = document.createElement("footer");
         let footerSteps = document.createElement("span");
