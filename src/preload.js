@@ -71,7 +71,7 @@ function routeCatalog() {
 }
 
 function routeCreate() {
-  document.querySelector("#test").addEventListener("click", function() {
+  document.querySelector("#test").addEventListener("click", function () {
     let script = document.querySelector("#script").value;
     ipcRenderer.send("test-script", script);
     ipcRenderer.on("data", (event, arg) => {
@@ -112,7 +112,7 @@ function routeCreate() {
     });
   });
 
-  document.querySelector("#publish").addEventListener("click", function() {
+  document.querySelector("#publish").addEventListener("click", function () {
     let scriptTitleEl = document.querySelector("#title");
     let scriptDescEl = document.querySelector("#desc");
     let scriptContentEl = document.querySelector("#script");
@@ -129,7 +129,7 @@ function routeCreate() {
 
       //TODO: check if there is the same action in database if yes then get it's id and remove it from insert array
 
-      Action.collection.insertMany(actionsArr, function(err, actions) {
+      Action.collection.insertMany(actionsArr, function (err, actions) {
         if (err) {
           return console.error(err);
         } else {
@@ -142,7 +142,7 @@ function routeCreate() {
             actions: actionsIdArr
           };
 
-          Script.collection.insertOne(script, function(err, script) {
+          Script.collection.insertOne(script, function (err, script) {
             if (err) {
               return console.error(err);
             } else {
@@ -151,7 +151,7 @@ function routeCreate() {
               User.collection.findOneAndUpdate(
                 query,
                 { $push: { scripts: script.insertedId } },
-                function(err, user) {
+                function (err, user) {
                   if (err) {
                     return console.error(err);
                   } else {
@@ -170,12 +170,12 @@ function routeCreate() {
   });
 }
 
-function routeRun() {}
+function routeRun() { }
 
 function setUpNavbar() {
   const navLinks = document.querySelectorAll("nav > ul > li");
   for (let i = 0; i < navLinks.length; i++) {
-    navLinks[i].onclick = function() {
+    navLinks[i].onclick = function () {
       const el = this;
       changeView(el);
     };
@@ -184,12 +184,12 @@ function setUpNavbar() {
 
 function loadHomePageTable() {
   const query = { _id: mongoose.Types.ObjectId(ownerId) };
-  User.collection.findOne(query, function(err, user) {
+  User.collection.findOne(query, function (err, user) {
     if (err) return console.error(err);
     if (user) {
       const userScripts = user.scripts;
       const query = { _id: { $in: userScripts } };
-      Script.collection.find(query, function(err, cursor) {
+      Script.collection.find(query, function (err, cursor) {
         if (err) return console.error(err);
         cursor.toArray().then(scripts => {
           console.log(scripts);
@@ -263,7 +263,7 @@ function loadHomePageTable() {
 }
 
 function loadCatalog() {
-  Script.find(function(err, scripts) {
+  Script.find(function (err, scripts) {
     if (err) return console.error(err);
     let dataTable = document.querySelector("#scripts-catalog");
     dataTable.innerHTML = "";
@@ -351,11 +351,12 @@ async function loadEditScriptForm() {
   myScripts.innerHTML = "";
   myScripts.innerHTML = await fetchHtmlAsText("routes/edit.html");
   let shareButton = document.querySelector("#share");
-  shareButton.addEventListener("click", function() {
+  shareButton.addEventListener("click", function () {
     let emailInput = document.querySelector("#email");
     const email = emailInput.value;
     if (emailValidation(email)) {
       User.collection.findOne({ email: email }).then((user) => {
+        console.log(user);
         //editScript(email);
       });
     }
@@ -365,12 +366,12 @@ async function loadEditScriptForm() {
 function deleteScript(scriptId) {
   console.log(scriptId);
   const query = { scripts: scriptId };
-  User.collection.updateMany(query, { $pull: { scripts: scriptId } }, function(
+  User.collection.updateMany(query, { $pull: { scripts: scriptId } }, function (
     err
   ) {
     if (err) return console.error(err);
     loadHomePageTable();
-    Script.collection.findOneAndDelete({ _id: scriptId }, function(
+    Script.collection.findOneAndDelete({ _id: scriptId }, function (
       err,
       script
     ) {

@@ -92,7 +92,7 @@ ipcMain.on("test-script", async (event, arg) => {
 
   let jsonData = [];
 
-  if (dataArrays) {
+  if (dataArrays.length) {
     if (checkArraysLength(dataArrays)) {
       for (let i0 = 0; i0 < dataArrays[0].length; i0++) {
         let obj = {};

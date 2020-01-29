@@ -297,10 +297,26 @@ textarea {
 }
 
 
-#home > .wrapper > .container > #my-scripts > .share-script {
+#home > .wrapper > .container > #my-scripts > #edit .share-script {
   padding: 20px;
 }
 
-#home > .wrapper > .container > #my-scripts > .share-script > input {
-  padding: 20px;
+#home > .wrapper > .container > #my-scripts > #edit > .share-script > input[type="text"] {
+  height: 30px;
+  margin-bottom: 10px;
+  outline: none;
+  border: none;
+  border-radius: 0.25rem;
+  margin-top: 5px;
+  padding: 10px;
+}
+
+#home > .wrapper > .container > #my-scripts > #edit > .share-script > #share {
+  padding: 10px 20px;
+  outline: none;
+  border: none;
+  background-color: #735cdd;
+  cursor: pointer;
+  color: white;
+  margin-left: 20px;
 }
