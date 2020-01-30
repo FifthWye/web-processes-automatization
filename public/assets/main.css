@@ -295,3 +295,12 @@ textarea {
   color:grey;
   margin-right: 20px;
 }
+
+
+#home > .wrapper > .container > #my-scripts > .share-script {
+  padding: 20px;
+}
+
+#home > .wrapper > .container > #my-scripts > .share-script > input {
+  padding: 20px;
+}

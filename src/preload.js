@@ -172,39 +172,6 @@ function routeCreate() {
 
 function routeRun() {}
 
-function scriptValidation(title, description, script) {
-  const titleRegEx = /^[a-zA-Z]+$/;
-
-  if (!regExTest(titleRegEx, title)) {
-    return false;
-  }
-
-  if (description.length > 350) {
-    return false;
-  }
-
-  if (!isJSON(script)) {
-    return false;
-  }
-  return true;
-}
-
-function regExTest(regex, string) {
-  return regex.test(string);
-}
-
-function isJSON(text) {
-  if (typeof text !== "string") {
-    return false;
-  }
-  try {
-    JSON.parse(text);
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
 function setUpNavbar() {
   const navLinks = document.querySelectorAll("nav > ul > li");
   for (let i = 0; i < navLinks.length; i++) {
@@ -213,10 +180,6 @@ function setUpNavbar() {
       changeView(el);
     };
   }
-}
-
-async function fetchHtmlAsText(url) {
-  return await (await fetch(url)).text();
 }
 
 function loadHomePageTable() {
@@ -299,45 +262,6 @@ function loadHomePageTable() {
   });
 }
 
-async function loadEditScriptForm() {
-  let myScripts = document.querySelector("#my-scripts");
-  myScripts.innerHTML = "";
-  myScripts.innerHTML = await fetchHtmlAsText("routes/edit.html");
-  let giveAccessDiv = document.createElement("div");
-  let divLabel = document.createElement("label");
-  let divInput = document.createElement("input");
-  let divButton = document.createElement("button");
-  divLabel.innerHTML = "Email:";
-  divButton.innerHTML = "Give access";
-  giveAccessDiv.appendChild(divLabel);
-  giveAccessDiv.appendChild(divInput);
-  giveAccessDiv.appendChild(divButton);
-  myScripts.appendChild(giveAccessDiv);
-}
-
-function deleteScript(scriptId) {
-  console.log(scriptId);
-  const query = { scripts: scriptId };
-  User.collection.updateMany(query, { $pull: { scripts: scriptId } }, function(
-    err
-  ) {
-    if (err) return console.error(err);
-    loadHomePageTable();
-    Script.collection.findOneAndDelete({ _id: scriptId }, function(
-      err,
-      script
-    ) {
-      if (err) return console.log(err);
-      const actions = script.actions;
-      Action.collection.deleteMany(actions);
-    });
-  });
-}
-
-function editScript(scriptId, email) {
-  console.log(scriptId, email);
-}
-
 function loadCatalog() {
   Script.find(function(err, scripts) {
     if (err) return console.error(err);
@@ -373,4 +297,90 @@ function loadCatalog() {
       }
     }
   });
+}
+
+function scriptValidation(title, description, script) {
+  const titleRegEx = /^[a-zA-Z]+$/;
+
+  if (!regExTest(titleRegEx, title)) {
+    return false;
+  }
+
+  if (description.length > 350) {
+    return false;
+  }
+
+  if (!isJSON(script)) {
+    return false;
+  }
+  return true;
+}
+
+async function emailValidation(email) {
+  const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+  if (!regExTest(emailRegEx, email)) {
+    return false;
+  }
+
+  return true;
+}
+
+function regExTest(regex, string) {
+  return regex.test(string);
+}
+
+function isJSON(text) {
+  if (typeof text !== "string") {
+    return false;
+  }
+  try {
+    JSON.parse(text);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function fetchHtmlAsText(url) {
+  return await (await fetch(url)).text();
+}
+
+async function loadEditScriptForm() {
+  let myScripts = document.querySelector("#my-scripts");
+  myScripts.innerHTML = "";
+  myScripts.innerHTML = await fetchHtmlAsText("routes/edit.html");
+  let shareButton = document.querySelector("#share");
+  shareButton.addEventListener("click", function() {
+    let emailInput = document.querySelector("#email");
+    const email = emailInput.value;
+    if (emailValidation(email)) {
+      User.collection.findOne({ email: email }).then((user) => {
+        //editScript(email);
+      });
+    }
+  });
+}
+
+function deleteScript(scriptId) {
+  console.log(scriptId);
+  const query = { scripts: scriptId };
+  User.collection.updateMany(query, { $pull: { scripts: scriptId } }, function(
+    err
+  ) {
+    if (err) return console.error(err);
+    loadHomePageTable();
+    Script.collection.findOneAndDelete({ _id: scriptId }, function(
+      err,
+      script
+    ) {
+      if (err) return console.log(err);
+      const actions = script.actions;
+      Action.collection.deleteMany(actions);
+    });
+  });
+}
+
+function editScript(scriptId, email) {
+  console.log(scriptId, email);
 }
