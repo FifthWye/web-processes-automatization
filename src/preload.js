@@ -17,12 +17,12 @@ mongoose.connect(mongodbConnectionString, {
   useUnifiedTopology: true
 });
 
-const ownerId = store.get("userId");
+const ownerId = mongoose.Types.ObjectId(store.get("userId"));
 
 window.addEventListener("DOMContentLoaded", () => {
   changeView();
   setUpNavbar();
-  store.set("userId", "5e2f972590197c424cc96d33");
+  store.set("userId", "5e30e0f590197c424cc96d34");
 });
 
 async function changeView(el) {
@@ -71,48 +71,14 @@ function routeCatalog() {
 }
 
 function routeCreate() {
-  document.querySelector("#test").addEventListener("click", function () {
+  document.querySelector("#test").addEventListener("click", function() {
     let script = document.querySelector("#script").value;
-    ipcRenderer.send("test-script", script);
-    ipcRenderer.on("data", (event, arg) => {
-      const dataArr = arg;
-      let dataTable = document.querySelector(".script-output");
-      dataTable.innerHTML = "";
-      let tableEl = document.createElement("table");
-      let theadEl = document.createElement("thead");
-      let theadTr = document.createElement("tr");
-      let numTh = document.createElement("th");
-      numTh.innerHTML = "#";
-      theadTr.appendChild(numTh);
-
-      for (var attr in dataArr[0]) {
-        let thEl = document.createElement("th");
-        thEl.innerHTML = attr[0].toUpperCase() + attr.slice(1);
-        theadTr.appendChild(thEl);
-      }
-
-      let tbodyEl = document.createElement("tbody");
-      for (let i = 0; i < dataArr.length; i++) {
-        let trEl = document.createElement("tr");
-        let numTd = document.createElement("td");
-        numTd.innerHTML = i + 1;
-        trEl.appendChild(numTd);
-        for (var attr in dataArr[0]) {
-          let tdEl = document.createElement("td");
-          tdEl.innerHTML = dataArr[i][attr];
-          trEl.appendChild(tdEl);
-        }
-        tbodyEl.appendChild(trEl);
-      }
-
-      theadEl.appendChild(theadTr);
-      tableEl.appendChild(theadEl);
-      tableEl.appendChild(tbodyEl);
-      dataTable.appendChild(tableEl);
-    });
+    if (isJSON(script)) {
+      testScript(script);
+    }
   });
 
-  document.querySelector("#publish").addEventListener("click", function () {
+  document.querySelector("#publish").addEventListener("click", function() {
     let scriptTitleEl = document.querySelector("#title");
     let scriptDescEl = document.querySelector("#desc");
     let scriptContentEl = document.querySelector("#script");
@@ -125,42 +91,38 @@ function routeCreate() {
       )
     ) {
       const actionsArr = JSON.parse(scriptContentEl.value);
-      let actionsIdArr = [];
 
       //TODO: check if there is the same action in database if yes then get it's id and remove it from insert array
 
-      Action.collection.insertMany(actionsArr, function (err, actions) {
+      Action.collection.insertMany(actionsArr, function(err, actions) {
         if (err) {
           return console.error(err);
         } else {
-          actionsIdArr = actions.insertedIds;
-          console.log(actions);
+          const isertedIdsObject = actions.insertedIds;
+          let actionsIdArr = [];
+          for (let attr in isertedIdsObject) {
+            actionsIdArr.push(isertedIdsObject[attr]);
+          }
           const script = {
             title: scriptTitleEl.value,
             description: scriptDescEl.value,
-            users: [mongoose.Types.ObjectId(ownerId)],
+            users: [ownerId],
             actions: actionsIdArr
           };
 
-          Script.collection.insertOne(script, function (err, script) {
-            if (err) {
-              return console.error(err);
-            } else {
-              console.log(script);
-              const query = { _id: mongoose.Types.ObjectId(ownerId) };
-              User.collection.findOneAndUpdate(
-                query,
-                { $push: { scripts: script.insertedId } },
-                function (err, user) {
-                  if (err) {
-                    return console.error(err);
-                  } else {
-                    console.log(user);
-                    changeView();
-                  }
-                }
-              );
-            }
+          Script.collection.insertOne(script, function(err, script) {
+            if (err) return console.error(err);
+            console.log(script);
+            const query = { _id: ownerId };
+            User.collection.findOneAndUpdate(
+              query,
+              { $push: { scripts: script.insertedId } },
+              function(err, user) {
+                if (err) return console.error(err);
+                console.log(user);
+                changeView();
+              }
+            );
           });
         }
       });
@@ -170,12 +132,12 @@ function routeCreate() {
   });
 }
 
-function routeRun() { }
+function routeRun() {}
 
 function setUpNavbar() {
   const navLinks = document.querySelectorAll("nav > ul > li");
   for (let i = 0; i < navLinks.length; i++) {
-    navLinks[i].onclick = function () {
+    navLinks[i].onclick = function() {
       const el = this;
       changeView(el);
     };
@@ -183,13 +145,13 @@ function setUpNavbar() {
 }
 
 function loadHomePageTable() {
-  const query = { _id: mongoose.Types.ObjectId(ownerId) };
-  User.collection.findOne(query, function (err, user) {
+  const query = { _id: ownerId };
+  User.collection.findOne(query, function(err, user) {
     if (err) return console.error(err);
     if (user) {
       const userScripts = user.scripts;
       const query = { _id: { $in: userScripts } };
-      Script.collection.find(query, function (err, cursor) {
+      Script.collection.find(query, function(err, cursor) {
         if (err) return console.error(err);
         cursor.toArray().then(scripts => {
           console.log(scripts);
@@ -220,7 +182,7 @@ function loadHomePageTable() {
               let numTd = document.createElement("td");
               numTd.innerHTML = i + 1;
               trEl.appendChild(numTd);
-              for (var attr in scripts[i]) {
+              for (let attr in scripts[i]) {
                 if (attr != "_id" && attr != "users" && attr != "actions") {
                   let tdEl = document.createElement("td");
                   tdEl.innerHTML = scripts[i][attr];
@@ -234,7 +196,7 @@ function loadHomePageTable() {
               removeButton.innerHTML = "&#10006;";
               editButton.innerHTML = "<i class='fas fa-pencil-alt'></i>";
               editButton.addEventListener("click", () => {
-                loadEditScriptForm();
+                loadEditScriptForm(scripts[i]._id);
               });
               removeButton.addEventListener("click", () => {
                 deleteScript(scripts[i]._id);
@@ -263,8 +225,9 @@ function loadHomePageTable() {
 }
 
 function loadCatalog() {
-  Script.find(function (err, scripts) {
+  Script.find(function(err, scripts) {
     if (err) return console.error(err);
+    console.log(scripts);
     let dataTable = document.querySelector("#scripts-catalog");
     dataTable.innerHTML = "";
     if (scripts.length) {
@@ -288,8 +251,8 @@ function loadCatalog() {
         let cardFooter = document.createElement("footer");
         let footerSteps = document.createElement("span");
         let footerUsers = document.createElement("span");
-        footerSteps.innerHTML = "Steps: " + scripts[i].actions.length;
-        footerUsers.innerHTML = "Users: " + scripts[i].users.length;
+        footerSteps.textContent = "Steps: " + scripts[i].actions.length;
+        footerUsers.textContent = "Users: " + scripts[i].users.length;
         cardFooter.appendChild(footerSteps);
         cardFooter.appendChild(footerUsers);
         card.appendChild(cardFooter);
@@ -300,7 +263,7 @@ function loadCatalog() {
 }
 
 function scriptValidation(title, description, script) {
-  const titleRegEx = /^[a-zA-Z]+$/;
+  const titleRegEx = /^[a-zA-Z][a-zA-Z\s]+$/;
 
   if (!regExTest(titleRegEx, title)) {
     return false;
@@ -342,36 +305,159 @@ function isJSON(text) {
   }
 }
 
+async function removeIds(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    delete arr[i]._id;
+  }
+  return arr;
+}
+
 async function fetchHtmlAsText(url) {
   return await (await fetch(url)).text();
 }
 
-async function loadEditScriptForm() {
+async function loadEditScriptForm(scriptId) {
   let myScripts = document.querySelector("#my-scripts");
   myScripts.innerHTML = "";
   myScripts.innerHTML = await fetchHtmlAsText("routes/edit.html");
   let shareButton = document.querySelector("#share");
-  shareButton.addEventListener("click", function () {
+
+  Script.collection.findOne({ _id: scriptId }, async function(err, script) {
+    if (err) return console.error(err);
+    let scriptTitleEl = document.querySelector("#title");
+    let scriptDescEl = document.querySelector("#desc");
+    let scriptContentEl = document.querySelector("#script");
+
+    console.log(script);
+
+    scriptTitleEl.value = script.title;
+    scriptDescEl.textContent = script.description;
+
+    const actionsIds = script.actions;
+
+    let scriptActions = await Action.collection
+      .find({
+        _id: { $in: actionsIds }
+      })
+      .toArray();
+
+    scriptActions = await removeIds(scriptActions);
+
+    scriptContentEl.textContent = JSON.stringify(scriptActions, null, 2);
+  });
+
+  shareButton.addEventListener("click", function() {
     let emailInput = document.querySelector("#email");
     const email = emailInput.value;
     if (emailValidation(email)) {
-      User.collection.findOne({ email: email }).then((user) => {
-        console.log(user);
-        //editScript(email);
+      User.collection.findOneAndUpdate(
+        { email: email },
+        { $push: { scripts: scriptId } },
+        function(err, user) {
+          if (err) return console.error(err);
+          Script.collection.findOneAndUpdate(
+            { _id: scriptId },
+            { $push: { users: user.value._id } },
+            function(err, script) {
+              if (err) return console.error(err);
+              console.log(script);
+            }
+          );
+        }
+      );
+    }
+  });
+
+  document.querySelector("#test").addEventListener("click", function() {
+    let script = document.querySelector("#script").value;
+    if (isJSON(script)) {
+      testScript(script);
+    }
+  });
+
+  let saveButton = document.querySelector("#save");
+
+  saveButton.addEventListener("click", function() {
+    let scriptTitle = document.querySelector("#title").value;
+    let scriptDesc = document.querySelector("#desc").value;
+    let scriptContent = document.querySelector("#script").value;
+
+    if (scriptValidation(scriptTitle, scriptDesc, scriptContent)) {
+      const actions = JSON.parse(scriptContent);
+
+      Script.collection.findOne({_id:scriptId},function(err,sccript){
+
+      });
+
+      Action.collection.insertMany(actions, function(err, actions) {
+        if (err) {
+          return console.error(err);
+        } else {
+          const isertedIdsObject = actions.insertedIds;
+          let actionsIdArr = [];
+          for (let attr in isertedIdsObject) {
+            actionsIdArr.push(isertedIdsObject[attr]);
+          }
+
+          Script.collection.findOneAndUpdate({_id:scriptId},{title:scriptTitle, description:scriptDesc},function(err,script){
+
+
+          });
+        }
       });
     }
+  });
+}
+
+function testScript(script) {
+  ipcRenderer.send("test-script", script);
+  ipcRenderer.on("data", (event, arg) => {
+    const dataArr = arg;
+    let dataTable = document.querySelector(".script-output");
+    dataTable.innerHTML = "";
+    let tableEl = document.createElement("table");
+    let theadEl = document.createElement("thead");
+    let theadTr = document.createElement("tr");
+    let numTh = document.createElement("th");
+    numTh.innerHTML = "#";
+    theadTr.appendChild(numTh);
+
+    for (let attr in dataArr[0]) {
+      let thEl = document.createElement("th");
+      thEl.textContent = attr[0].toUpperCase() + attr.slice(1);
+      theadTr.appendChild(thEl);
+    }
+
+    let tbodyEl = document.createElement("tbody");
+    for (let i = 0; i < dataArr.length; i++) {
+      let trEl = document.createElement("tr");
+      let numTd = document.createElement("td");
+      numTd.textContent = i + 1;
+      trEl.appendChild(numTd);
+      for (let attr in dataArr[0]) {
+        let tdEl = document.createElement("td");
+        tdEl.textContent = dataArr[i][attr];
+        trEl.appendChild(tdEl);
+      }
+      tbodyEl.appendChild(trEl);
+    }
+
+    theadEl.appendChild(theadTr);
+    tableEl.appendChild(theadEl);
+    tableEl.appendChild(tbodyEl);
+    dataTable.appendChild(tableEl);
   });
 }
 
 function deleteScript(scriptId) {
   console.log(scriptId);
   const query = { scripts: scriptId };
-  User.collection.updateMany(query, { $pull: { scripts: scriptId } }, function (
+  User.collection.updateMany(query, { $pull: { scripts: scriptId } }, function(
     err
   ) {
     if (err) return console.error(err);
     loadHomePageTable();
-    Script.collection.findOneAndDelete({ _id: scriptId }, function (
+    Script.collection.findOneAndDelete({ _id: scriptId }, function(
       err,
       script
     ) {
@@ -380,8 +466,4 @@ function deleteScript(scriptId) {
       Action.collection.deleteMany(actions);
     });
   });
-}
-
-function editScript(scriptId, email) {
-  console.log(scriptId, email);
 }

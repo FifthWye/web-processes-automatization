@@ -157,6 +157,7 @@ table tr button {
   outline: none;
   cursor: pointer;
   margin-right: 5px;
+  color: #363636;
 }
 
 textarea {
@@ -292,22 +293,25 @@ textarea {
 
 #catalog > .wrapper > .container > #scripts-catalog > .card > footer > span {
   font-size: 12px;
-  color:grey;
+  color: grey;
   margin-right: 20px;
 }
-
 
 #home > .wrapper > .container > #my-scripts > #edit .share-script {
   padding: 20px;
 }
 
-#home > .wrapper > .container > #my-scripts > #edit > .share-script > input[type="text"] {
+#home
+  > .wrapper
+  > .container
+  > #my-scripts
+  > #edit
+  > .share-script
+  > input[type="text"] {
   height: 30px;
-  margin-bottom: 10px;
   outline: none;
   border: none;
   border-radius: 0.25rem;
-  margin-top: 5px;
   padding: 10px;
 }
 
@@ -319,4 +323,66 @@ textarea {
   cursor: pointer;
   color: white;
   margin-left: 20px;
+}
+
+#edit > .script-editor {
+  display: flex;
+  justify-content: space-between;
+  height: 20rem;
+  margin-bottom: 40px;
+  margin-top: 40px;
+}
+
+#edit > .script-editor > .script-info {
+  width: 40%;
+}
+
+#edit
+  > .script-editor
+  .script-info
+  > input[type="text"] {
+  width: 100%;
+  height: 30px;
+  margin-bottom: 10px;
+  outline: none;
+  border: none;
+  border-radius: 0.25rem;
+  margin-top: 5px;
+}
+
+#edit > .script-editor > .script-info > textarea {
+  width: 100%;
+  height: 130px;
+  resize: none;
+  margin-bottom: 10px;
+  outline: none;
+  border: none;
+  border-radius: 0.25rem;
+  margin-top: 5px;
+}
+
+#edit > .script-editor > .script-info > button {
+  padding: 20px 30px;
+  outline: none;
+  border: none;
+  background-color: #735cdd;
+  cursor: pointer;
+  color: white;
+  margin-right: 10px;
+}
+
+#edit > .script-editor > .script-info > button:hover {
+  opacity: 0.9;
+}
+
+#edit > .script-editor > .script-content {
+  width: 56%;
+}
+
+#edit > .script-editor > .script-content > textarea {
+  width: 100%;
+  height: 100%;
+  resize: none;
+  outline: none;
+  border: none;
 }

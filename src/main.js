@@ -65,9 +65,8 @@ app.on("activate", function() {
 // code. You can also put them in separate files and require them here.
 
 ipcMain.on("test-script", async (event, arg) => {
-  const script = JSON.parse(arg); //[{"func":"goTo","url":"http://google.com"},{"func":"type","selector":"input[name='q']", "text":"gandalf sax video"},{"func":"click"}]
-
-  console.log(script, script.length);
+  const script = JSON.parse(arg); 
+  //console.log(script, script.length);
 
   const browser = await puppeteer.launch({
     //executablePath: chromium_path,
@@ -85,7 +84,6 @@ ipcMain.on("test-script", async (event, arg) => {
   for (let i = 0; i < script.length; i++) {
     const actionData = await execAction(script[i], page);
     if (actionData) {
-      //console.log(actionData);
       dataArrays.push(actionData);
     }
   }
@@ -101,7 +99,7 @@ ipcMain.on("test-script", async (event, arg) => {
         }
         jsonData.push(obj);
       }
-      console.log(jsonData)
+      
       event.sender.send("data", jsonData);
     }
   }
